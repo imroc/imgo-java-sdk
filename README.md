@@ -5,12 +5,11 @@ java sdk for imgo
 
 ``` java
 String pushAddress = "push.imgo.com:8080";
-String offlineMsgAddress = "msg.imgo.com:8099";
 long userid = 88888888888L;
-String token = "abcdefg123456789"
+String token = "abcdefg123456789";
 //use sdk to connect imgo
 try{
-    PushClient client = new PushClient(pushAddress, offlineMsgAddress,userid,token);
+    PushClient client = new PushClient(pushAddress,userid,token);
     client.setClientEventListener(new ClientEventListener() {
         @Override
         public void onConnectionStateChanged(ConnectionState currentState) {
@@ -19,22 +18,22 @@ try{
 
         @Override
         public void onError(Exception e) {
-            System.out.println("发生错误："+e.getMessage());
+            System.out.println("error："+e.getMessage());
         }
 
         @Override
         public void onAuth(boolean success) {
-            System.out.println("认证结果："+success);
+            System.out.println("auth："+success);
         }
 
         @Override
         public void onMessage(long version, String message) {
-            System.out.Println("消息协议版本:"+version+",消息内容:"+message)
+            System.out.Println("version:"+version+",msg:"+message)
         }
     });
     client.start();
 }catch (Exception e){
-    System.out.println("错误："+e.getMessage());
+    System.out.println("fetal："+e.getMessage());
 }
 
 ```

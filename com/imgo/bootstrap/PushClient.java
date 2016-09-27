@@ -29,7 +29,6 @@ public class PushClient {
     protected long uid;
     protected long mid;
     protected String token;
-    protected String messageAddress;
     protected byte[] authMessage;
     protected byte[] heartbeatMessage;
     protected ClientEventListener clientEventListener;
@@ -49,8 +48,8 @@ public class PushClient {
      * @param token
      *            the token,used for authentication.
      */
-    public PushClient(String cometAddress,String messageAddress, long uid, String token) throws UnknownHostException {
-        this(cometAddress,messageAddress, uid, token, DEFAULT_MESSAGE_SIZE);
+    public PushClient(String cometAddress, long uid, String token) throws UnknownHostException {
+        this(cometAddress, uid, token, DEFAULT_MESSAGE_SIZE);
     }
 
     /**
@@ -66,7 +65,7 @@ public class PushClient {
      *            possible value that doesn't get exceeded often - see class
      *            documentation.
      */
-    public PushClient(String cometAddress,String messageAddress, long uid, String token, int defaultBufferSize) throws UnknownHostException {
+    public PushClient(String cometAddress, long uid, String token, int defaultBufferSize) throws UnknownHostException {
         String[] cometInfo = cometAddress.split(":");
         if(cometInfo.length!=2){
             throw new RuntimeException("illegal comet address");
@@ -74,7 +73,6 @@ public class PushClient {
 
         this.server = InetAddress.getByName(cometInfo[0]);
         this.port = Integer.parseInt(cometInfo[1]);
-        this.messageAddress = "http://"+messageAddress;
 
         this.uid = uid;
         this.token = token;
@@ -127,7 +125,6 @@ public class PushClient {
 
 
     public void start(){
-        pullOfflineMessage();
         new Thread(this.connectTask).start();
     }
 
@@ -157,13 +154,6 @@ public class PushClient {
         return false;
     }
 
-    public void pullOfflineMessage(){
-        if(clientEventListener==null){
-            return;
-        }
-        new Thread(this.pullOfflineMessageTask).start();
-    }
-
 
     private synchronized Boolean authWrite() throws IOException {
         write(authMessage);
@@ -185,44 +175,6 @@ public class PushClient {
         new Thread(this.heartbeatTask).start();
     }
 
-    private class PullOfflineMessageTask implements Runnable {
-        @Override
-        public void run() {
-            URL url;
-            try{
-                url = new URL(messageAddress +"/1/msg/get?uid="+uid+"&token="+token+"&mid="+mid);
-            }catch (Exception e){
-                clientEventListener.onError(e);
-                throw new RuntimeException("wrong url for get offline message");
-            }
-
-            try {
-                //打开对服务器的连接
-                HttpURLConnection conn = (HttpURLConnection)url.openConnection();
-                //连接服务器
-                conn.connect();
-                /**读入服务器数据的过程**/
-                //得到输入流
-                InputStream is = conn.getInputStream();
-                //创建包装流
-                BufferedReader br=new BufferedReader(new InputStreamReader(is));
-                //定义String类型用于储存单行数据
-                String line=null;
-                //创建StringBuffer对象用于存储所有数据
-                StringBuffer sb=new StringBuffer();
-                while((line=br.readLine())!=null){
-                    sb.append(line);
-                }
-
-                String msg = sb.toString();
-
-                clientEventListener.onMessage(0,sb.toString());
-
-            } catch (IOException e) {
-                clientEventListener.onError(e);
-            }
-        }
-    }
 
     private class HeartbeatTask implements Runnable {
 
