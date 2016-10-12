@@ -4,16 +4,15 @@ java sdk for imgo
 # Usage
 
 ``` java
-String pushAddress = "push.imgo.com:8080";
-long userid = 88888888888L;
+String pushAddress = "127.0.0.1:8080";
 String token = "abcdefg123456789";
 //use sdk to connect imgo
 try{
-    PushClient client = new PushClient(pushAddress,userid,token);
+    PushClient client = new PushClient(pushAddress,token);
     client.setClientEventListener(new ClientEventListener() {
         @Override
         public void onConnectionStateChanged(ConnectionState currentState) {
-            System.out.println("current state is "+ currentState.name())
+            System.out.println("current state is "+ currentState.name());
         }
 
         @Override
@@ -28,7 +27,7 @@ try{
 
         @Override
         public void onMessage(long version, String message) {
-            System.out.Println("version:"+version+",msg:"+message)
+            System.out.Println("version:"+version+",msg:"+message);
         }
     });
     client.start();

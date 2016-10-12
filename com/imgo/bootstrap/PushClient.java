@@ -36,19 +36,16 @@ public class PushClient {
     private final AtomicReference<DataInputStream> in = new AtomicReference<DataInputStream>();
     private final ConnectTask connectTask = new ConnectTask();
     private final HeartbeatTask heartbeatTask = new HeartbeatTask();
-    private final PullOfflineMessageTask pullOfflineMessageTask = new PullOfflineMessageTask();
 
     /**
      * Construct an unstarted client which will attempt to connect to the given
      * server on the given port.
      *
 
-     * @param uid
-     *            the user id.
      * @param token
      *            the token,used for authentication.
      */
-    public PushClient(String cometAddress, long uid, String token) throws UnknownHostException {
+    public PushClient(String cometAddress,String token) throws UnknownHostException {
         this(cometAddress, uid, token, DEFAULT_MESSAGE_SIZE);
     }
 
@@ -56,8 +53,6 @@ public class PushClient {
      * Construct an unstarted client which will attempt to connect to the given
      * server on the given port.
      *
-     * @param uid
-     *            the user id.
      * @param token
      *            the token,used for authentication.
      * @param defaultBufferSize
@@ -65,7 +60,7 @@ public class PushClient {
      *            possible value that doesn't get exceeded often - see class
      *            documentation.
      */
-    public PushClient(String cometAddress, long uid, String token, int defaultBufferSize) throws UnknownHostException {
+    public PushClient(String cometAddress,String token, int defaultBufferSize) throws UnknownHostException {
         String[] cometInfo = cometAddress.split(":");
         if(cometInfo.length!=2){
             throw new RuntimeException("illegal comet address");
@@ -74,7 +69,6 @@ public class PushClient {
         this.server = InetAddress.getByName(cometInfo[0]);
         this.port = Integer.parseInt(cometInfo[1]);
 
-        this.uid = uid;
         this.token = token;
         this.defaultBufferSize = defaultBufferSize;
 
@@ -273,7 +267,6 @@ public class PushClient {
                         clientEventListener.onError(e);
                     }
                 }
-                //start();
             }
         }
     }
